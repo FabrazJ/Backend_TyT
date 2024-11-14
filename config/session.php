@@ -200,6 +200,7 @@ return [
     */
 
     'same_site' => env('SESSION_SAME_SITE', 'lax'),
+    'driver' => env('SESSION_DRIVER', 'file'),
 
     /*
     |--------------------------------------------------------------------------

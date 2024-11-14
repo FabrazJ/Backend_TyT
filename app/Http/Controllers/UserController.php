@@ -2,63 +2,43 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash; // Esta línea es para utilizar el método Hash para cifrar la contraseña
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
+    // Método para mostrar el formulario de creación
     public function create()
     {
-        //
+        return view('users.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+    public function store(Request $request){
+        // Validación de los datos
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+        ], [
+            'email.unique' => 'Este correo electrónico ya está registrado.',
+            'password.confirmed' => 'Las contraseñas no coinciden.',
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        // Crear el usuario después de validar
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),  // Asegúrate de que la contraseña esté cifrada
+        ]);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+        // Redirigir a la lista de usuarios después de crear
+        return redirect()->route('users.index');
     }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
+        // Método para mostrar todos los usuarios
+    public function index()
+        {
+            $users = User::all();  // Obtiene todos los usuarios
+            return view('users.index', compact('users'));  // Pasa los usuarios a la vista
+        }
 }

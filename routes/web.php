@@ -13,3 +13,5 @@ Route::resource('users', UserController::class);
 Route::resource('departamentos', DepartamentoController::class);
 Route::resource('cargos', CargoController::class);
 Route::resource('emails', EmailController::class);
+
+Route::get('/users', [UserController::class, 'index'])->name('users.index');

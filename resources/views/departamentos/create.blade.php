@@ -1,7 +1,5 @@
 <!-- resources/views/users/create.blade.php -->
 
-@extends('layouts.app')
-
 @section('content')
     <h1>Crear Nuevo Usuario</h1>
 
