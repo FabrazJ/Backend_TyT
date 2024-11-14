@@ -6,59 +6,53 @@ use Illuminate\Http\Request;
 
 class CargoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return Cargo::all(); // Obtener todos los cargos
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'codigo' => 'required|string|max:50',
+            'nombre' => 'required|string|max:100',
+            'activo' => 'required|boolean',
+            'idUsuarioCreacion' => 'required|integer',
+        ]);
+
+        $cargo = Cargo::create($request->all());
+        return response()->json($cargo, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show($id)
     {
-        //
+        $cargo = Cargo::find($id);
+        if (!$cargo) {
+            return response()->json(['message' => 'Cargo no encontrado'], 404);
+        }
+
+        return response()->json($cargo);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $cargo = Cargo::find($id);
+        if (!$cargo) {
+            return response()->json(['message' => 'Cargo no encontrado'], 404);
+        }
+
+        $cargo->update($request->all());
+        return response()->json($cargo);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy($id)
     {
-        //
-    }
+        $cargo = Cargo::find($id);
+        if (!$cargo) {
+            return response()->json(['message' => 'Cargo no encontrado'], 404);
+        }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $cargo->delete();
+        return response()->json(['message' => 'Cargo eliminado correctamente'], 200);
     }
 }

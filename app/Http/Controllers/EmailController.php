@@ -6,59 +6,54 @@ use Illuminate\Http\Request;
 
 class EmailController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return Email::all(); // Obtener todos los emails
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'email' => 'required|string|email|max:255',
+            'idUsuario' => 'nullable|integer',
+            'idDepartamento' => 'nullable|integer',
+            'tipo' => 'nullable|string|max:50',
+            'activo' => 'required|boolean',
+        ]);
+
+        $email = Email::create($request->all());
+        return response()->json($email, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show($id)
     {
-        //
+        $email = Email::find($id);
+        if (!$email) {
+            return response()->json(['message' => 'Email no encontrado'], 404);
+        }
+
+        return response()->json($email);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $email = Email::find($id);
+        if (!$email) {
+            return response()->json(['message' => 'Email no encontrado'], 404);
+        }
+
+        $email->update($request->all());
+        return response()->json($email);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy($id)
     {
-        //
-    }
+        $email = Email::find($id);
+        if (!$email) {
+            return response()->json(['message' => 'Email no encontrado'], 404);
+        }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $email->delete();
+        return response()->json(['message' => 'Email eliminado correctamente'], 200);
     }
 }

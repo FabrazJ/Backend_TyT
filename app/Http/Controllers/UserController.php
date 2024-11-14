@@ -8,58 +8,54 @@ use Illuminate\Support\Facades\Hash; // Esta línea es para utilizar el método 
 
 class UserController extends Controller
 {
-    // Obtener todos los usuarios
     public function index()
     {
-        $users = User::all();
-        return response()->json($users);  // Devolver los usuarios como JSON
+        return User::with(['departamento', 'cargo', 'emails'])->get(); // Obtener todos los usuarios con sus relaciones
     }
 
-    // Crear un nuevo usuario
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
+            'usuario' => 'required|string|max:100',
+            'primerNombre' => 'required|string|max:100',
+            'primerApellido' => 'required|string|max:100',
+            'idDepartamento' => 'required|integer',
+            'idCargo' => 'required|integer',
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        return response()->json($user, 201);  // Retornar el usuario creado
+        $user = User::create($request->all());
+        return response()->json($user, 201);
     }
 
-    // Obtener un usuario por ID
     public function show($id)
     {
-        $user = User::findOrFail($id);
-        return response()->json($user);  // Retornar el usuario como JSON
+        $user = User::with(['departamento', 'cargo', 'emails'])->find($id);
+        if (!$user) {
+            return response()->json(['message' => 'Usuario no encontrado'], 404);
+        }
+
+        return response()->json($user);
     }
 
-    // Actualizar un usuario
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
-        ]);
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['message' => 'Usuario no encontrado'], 404);
+        }
 
-        $user = User::findOrFail($id);
         $user->update($request->all());
-
-        return response()->json($user);  // Retornar el usuario actualizado
+        return response()->json($user);
     }
 
-    // Eliminar un usuario
     public function destroy($id)
     {
-        $user = User::findOrFail($id);
-        $user->delete();
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['message' => 'Usuario no encontrado'], 404);
+        }
 
-        return response()->json(null, 204);  // Retornar respuesta sin contenido
+        $user->delete();
+        return response()->json(['message' => 'Usuario eliminado correctamente'], 200);
     }
 }
