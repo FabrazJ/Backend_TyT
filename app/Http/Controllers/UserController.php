@@ -8,37 +8,58 @@ use Illuminate\Support\Facades\Hash; // Esta línea es para utilizar el método 
 
 class UserController extends Controller
 {
-    // Método para mostrar el formulario de creación
-    public function create()
+    // Obtener todos los usuarios
+    public function index()
     {
-        return view('users.create');
+        $users = User::all();
+        return response()->json($users);  // Devolver los usuarios como JSON
     }
 
-    public function store(Request $request){
-        // Validación de los datos
+    // Crear un nuevo usuario
+    public function store(Request $request)
+    {
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-        ], [
-            'email.unique' => 'Este correo electrónico ya está registrado.',
-            'password.confirmed' => 'Las contraseñas no coinciden.',
         ]);
 
-        // Crear el usuario después de validar
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => bcrypt($request->password),  // Asegúrate de que la contraseña esté cifrada
+            'password' => Hash::make($request->password),
         ]);
 
-        // Redirigir a la lista de usuarios después de crear
-        return redirect()->route('users.index');
+        return response()->json($user, 201);  // Retornar el usuario creado
     }
-        // Método para mostrar todos los usuarios
-    public function index()
-        {
-            $users = User::all();  // Obtiene todos los usuarios
-            return view('users.index', compact('users'));  // Pasa los usuarios a la vista
-        }
+
+    // Obtener un usuario por ID
+    public function show($id)
+    {
+        $user = User::findOrFail($id);
+        return response()->json($user);  // Retornar el usuario como JSON
+    }
+
+    // Actualizar un usuario
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
+        ]);
+
+        $user = User::findOrFail($id);
+        $user->update($request->all());
+
+        return response()->json($user);  // Retornar el usuario actualizado
+    }
+
+    // Eliminar un usuario
+    public function destroy($id)
+    {
+        $user = User::findOrFail($id);
+        $user->delete();
+
+        return response()->json(null, 204);  // Retornar respuesta sin contenido
+    }
 }
