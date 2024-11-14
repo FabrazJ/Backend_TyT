@@ -155,5 +155,6 @@ JOIN cargos c ON u.idCargo = c.id
 LEFT JOIN emails e ON e.idUsuario = u.id;
 
 
+DROP TABLE users;
 
 
